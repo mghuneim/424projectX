@@ -89,7 +89,6 @@ ui <- dashboardPage(
                     h1("About"),
                     h2("Created by: Matthew Ghuneim"),
                     h3("This was an extra credit project for CS 424 Spring 2021. 
-                       I did not change the data file outside of R. 
                        The original data file is located here: https://datasets.wri.org/dataset/globalpowerplantdatabase.
                        The code available to run this is located here: https://github.com/mghuneim/424projectX")
             )
