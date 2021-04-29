@@ -18,16 +18,10 @@ library(countrycode)
 
 
 data <- read.csv('global_power_plant_database.csv', header = TRUE, na.strings = c('', 'NA'), stringsAsFactors = FALSE)
-data$generation_gwh_2013[is.na(data$generation_gwh_2013)] <- 0
-data$generation_gwh_2014[is.na(data$generation_gwh_2014)] <- 0
-data$generation_gwh_2015[is.na(data$generation_gwh_2015)] <- 0
-data$generation_gwh_2016[is.na(data$generation_gwh_2016)] <- 0
-data$generation_gwh_2017[is.na(data$generation_gwh_2017)] <- 0
-data$estimated_generation_gwh[is.na(data$estimated_generation_gwh)] <- 0
-data$year_of_capacity_data[is.na(data$year_of_capacity_data)] <- 9999
-data$commissioning_year[is.na(data$commissioning_year)] <- 9999
 
-data <- data %>% replace_na(list(other_fuel1 = 'None', other_fuel2 = 'None', other_fuel3 = 'None', owner = 'Unknown', wepp_id = 'Unknown'))
+data <- subset(data, select = -X)
+
+data <- data %>% replace_na(list(other_fuel1 = 'None', other_fuel2 = 'None', other_fuel3 = 'None'))
 
 data$continent <- countrycode(sourcevar = data[, "country_long"], origin = "country.name", destination = "continent")
 
