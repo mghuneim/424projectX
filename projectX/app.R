@@ -17,14 +17,17 @@ library(tidyr)
 library(countrycode)
 
 
+# reading in the data file and filling in the na values
 data <- read.csv('global_power_plant_database.csv', header = TRUE, na.strings = c('', 'NA'), stringsAsFactors = FALSE)
 
 data <- subset(data, select = -X)
 
 data <- data %>% replace_na(list(other_fuel1 = 'None', other_fuel2 = 'None', other_fuel3 = 'None'))
 
+# getting the continent for each country
 data$continent <- countrycode(sourcevar = data[, "country_long"], origin = "country.name", destination = "continent")
 
+# useful for the north america and south america maps
 northdata <- subset(data, ('CAN' == data$country) | ('MEX' == data$country) | ('USA' == data$country)
                     | ('CUB' == data$country) | ('CRI' == data$country) | ('DOM' == data$country) | ('PAN' == data$country) |
                         ('NIC' == data$country) | ('JAM' == data$country) | ('HND' == data$country) | ('GTM' == data$country) | 
@@ -35,11 +38,12 @@ southdata <- subset(data, ('ARG' == data$country) | ('BRA' == data$country) | ('
                         ('ECU' == data$country) | ('GUY' == data$country) | ('GUF' == data$country))
 
 
+# for the dropdowns
 continents <- c('North America', 'South America', 'Africa', 'Europe', 'Asia', 'Australia', 'Antarctica')
 sources <- c('All', 'Biomass', 'Coal', 'Cogeneration', 'Gas', 'Geothermal', 'Hydro', 'Nuclear', 'Oil', 'Other', 'Petcoke', 'Solar', 'Storage', 'Waste', 'Wave and Tidal', 'Wind')
     
 
-# Define UI for application that draws a histogram
+# shiny app
 ui <- dashboardPage(
     skin = "black",
     dashboardHeader(title = "Power to the People"),
@@ -53,7 +57,7 @@ ui <- dashboardPage(
     ),
     dashboardBody(
         tabItems(
-            # Illinois leaflet map for 2018 and checkbox
+            # Leaflet map of North America
             tabItem(tabName = "north",
                     fluidRow(
                         column(12,
@@ -64,7 +68,7 @@ ui <- dashboardPage(
                         )
                     )
             ),
-            # different state comparisons and different checkboxes
+            # continent comparisons and dropdown menus
             tabItem(tabName = "world",
                     fluidRow(
                         column(9,
@@ -96,9 +100,10 @@ ui <- dashboardPage(
     )
 )
 
-# Define server logic required to draw a histogram
+# reactive and output functions
 server <- function(input, output) {
 
+    # function for the north american map
     output$map1 <- renderLeaflet({
         colorPalette <- colorFactor(palette = c('#E69F00', '#56B4E9', '#009E73', '#F0E442', '#0072B2', '#D55E00', '#CC79A7',
                                                 '#999999', '#990000', '#000000'), domain = northdata$primary_fuel)
@@ -118,6 +123,7 @@ server <- function(input, output) {
         
     })
     
+    # reactive function for the source dropdown menu
     dropdownReactive <- reactive({
         newdata <- subset(data, data$capacity_mw >= input$slider1[1] & data$capacity_mw <= input$slider1[2])
         if (input$Source == 'All'){
@@ -170,6 +176,7 @@ server <- function(input, output) {
         }
     })
     
+    # function for the continent map
     output$map2 <- renderLeaflet({
         data1 <- dropdownReactive()
         northdata <- subset(data1, ('CAN' == data1$country) | ('MEX' == data1$country) | ('USA' == data1$country)
